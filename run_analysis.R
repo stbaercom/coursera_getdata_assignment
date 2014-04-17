@@ -1,4 +1,5 @@
 
+
 for (fn in c("y_test.txt","y_train.txt", "X_test.txt","X_train.txt")) {
   if(!file.exists(fn)) {
     stop("File ",fn, " is required in the same dir as this script")    
@@ -35,7 +36,7 @@ xtrain <- read.fwf("X_train.txt", widths = rep(16,times=561), header = F,col.nam
 # join training and test data
 x_all <- rbind(xtest,xtrain)
 # build a new data from with only  std and mean columns, selected by name
-x_all <- x_all[,grep("mean",names(x_all))]
+x_all <- x_all[,grep("(mean|std)",names(x_all))]
 
 
 # add the activity labels and subjects
@@ -43,7 +44,9 @@ ds1 <- cbind(x_all,acc,s_all)
 
 # build a long from, tidy dataset
 library(reshape2)
-ds1_tidy <- melt(ds1, c("activity","subject"))
+ds1_tidy <- melt(ds1, id= c("activity","subject"))
+ds1_tidy <- dcast(ds1_tidy, activity + subject  ~ variable , mean)
+ds1_tidy <- melt(ds1_tidy, id= c("activity","subject"))
 
 write.table(ds1_tidy, "tidy_data.txt", sep=" ", row.names=F, col.names=T) 
 
